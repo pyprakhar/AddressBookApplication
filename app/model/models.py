@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Float, UniqueConstraint
 from app.database.db import Base
 from uuid import uuid4
 
@@ -14,3 +14,7 @@ class Address(Base):
     country = Column(String, nullable=False)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
+    # Database-level unique constraint to prevent duplicate name + coordinates
+    __table_args__ = (
+        UniqueConstraint('name', 'latitude', 'longitude', name='uq_address_name_lat_lon'),
+    )

@@ -40,6 +40,19 @@ address_router = APIRouter( tags=["Addresses"])
 def create_address(address: schema.AddressCreate, db: Session = Depends(get_db)):
     logger.info(f"Creating address: {address.name}")
     try:
+        # Check for duplicates
+        existing = db.query(models.Address).filter(
+            models.Address.name == address.name,
+            models.Address.latitude == address.latitude,
+            models.Address.longitude == address.longitude
+        ).first()
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Address with same name and coordinates already exists"
+            )
+
+        # Create address
         return crud_address.create_address(db, address)
     except Exception as exc:
         logger.exception("Failed to create address")
