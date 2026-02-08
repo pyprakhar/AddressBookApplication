@@ -124,3 +124,20 @@ def delete_address(address_id: str, db: Session = Depends(get_db)):
     if not db_address:
         logger.warning(f"Address {address_id} not found for deletion")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Address not found")
+
+#--------------------------------
+# delete all records in the address table (for testing purposes)
+#--------------------------------
+@address_router.delete(
+    "/addresses/",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete all addresses",
+    description="Delete all addresses from the database. This is intended for testing purposes."
+)
+def delete_all_addresses(db: Session = Depends(get_db)):
+    try:
+        db.query(models.Address).delete()
+        db.commit()
+    except Exception as exc:
+        logger.exception("Failed to delete all addresses")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
